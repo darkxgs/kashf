@@ -26,7 +26,7 @@ async function start(raw: string, lang: Lang, fresh: boolean): Promise<StartStat
   }
   const ip = (await headers()).get("x-forwarded-for")?.split(",")[0]?.trim() || "local";
   const conn = await getConnection();
-  const r = await createAudit(conn, { url, ipHash: hashIp(ip), isDemo: url.startsWith(`${appUrl()}/demo-store`), fresh });
+  const r = await createAudit(conn, { url, ipHash: await hashIp(ip), isDemo: url.startsWith(`${appUrl()}/demo-store`), fresh });
   if (!r.ok) return { error: "limited", value: raw };
   if (!r.reused) {
     after(async () => {

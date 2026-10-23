@@ -8,6 +8,10 @@ import { arCount } from "@/lib/format";
 import { detectPlatform } from "@/lib/platforms";
 import { normalizeUrl, siteOf } from "@/lib/url";
 import { collect, findProductLink, robotsAllows, robotsFacts } from "@/server/collect";
+import { PGlite } from "@electric-sql/pglite";
+import { runMigrations } from "@/db/migrate";
+import { rawQuery } from "@/db/raw";
+import { storedKey } from "@/server/keys";
 import { parsePage } from "@/server/parse";
 import type { Facts, Finding } from "@/lib/types";
 
@@ -250,5 +254,17 @@ describe("reading pages", () => {
     expect(parsePage(`<a href="/en/shop">EN</a>`, "https://s.example.sa/ar/shop").langSwitch).toBe(true);
     expect(parsePage(`<a href="/en/shop">Store</a>`, "https://s.example.sa/ar/shop").langSwitch).toBe(true);
     expect(parsePage(`<a href="/?lang=ar">العربية</a>`, "https://s.example.sa/").langSwitch).toBe(true);
+  });
+});
+
+describe("the rate key", () => {
+  it("is made once, kept in the database, and found again by every instance", async () => {
+    const raw = { kind: "pglite" as const, client: await PGlite.create() };
+    await runMigrations(raw);
+    const [a, b] = await Promise.all([storedKey(raw, "rate"), storedKey(raw, "rate")]);
+    expect(a.length).toBeGreaterThanOrEqual(40);
+    expect(b).toBe(a);
+    expect(await rawQuery<{ name: string; value: string }>(raw, `SELECT name, value FROM kashf.app_keys`)).toEqual([{ name: "rate", value: a }]);
+    await raw.client.close();
   });
 });

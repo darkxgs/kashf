@@ -1,5 +1,5 @@
 import "server-only";
-import { createHash } from "node:crypto";
+import { createHmac } from "node:crypto";
 import { and, count, desc, eq, gt, lt, ne } from "drizzle-orm";
 import type { Connection } from "@/db";
 import { rawQuery } from "@/db/raw";
@@ -8,14 +8,15 @@ import { evaluate, grade, score } from "@/lib/checks";
 import { newId } from "@/lib/id";
 import type { Facts, Finding, Psi, Step, StepKey } from "@/lib/types";
 import { AuditError, collect } from "./collect";
+import { appKey } from "./keys";
 import { runPsi } from "./psi";
 
 export const RATE_PER_HOUR = 12;
 
 export const hostKey = (url: string) => new URL(url).hostname.toLowerCase().replace(/^www\./, "");
 
-/** Visitors are rate-limited by a salted hash of their IP; the address itself is never stored. */
-export const hashIp = (ip: string) => createHash("sha256").update(`${process.env.RATE_SALT ?? process.env.VERCEL_PROJECT_ID ?? "kashf"}:${ip}`).digest("hex").slice(0, 32);
+/** Visitors are rate-limited by a keyed hash of their IP; the address itself is never stored. */
+export const hashIp = async (ip: string) => createHmac("sha256", await appKey("rate")).update(ip).digest("hex").slice(0, 32);
 
 export type StartResult = { ok: true; id: string; reused: boolean } | { ok: false; error: "rate_limited" };
 

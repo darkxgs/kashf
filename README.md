@@ -50,7 +50,7 @@ The page shows each stage as it finishes. The report is scored when the last one
 
 **Measurements are kept apart from conclusions.** Each audit stores what was measured (`facts`) separately from the findings and scores derived from it, and the checks are pure functions of those facts, which is also how they're tested.
 
-**Private by default.** Reports are public to anyone with the link and aren't indexed. The rate limit (12 check-ups an hour per visitor) counts a salted hash of the IP address; the address itself is never stored. Checking the same store twice within two minutes reopens the running audit instead of starting another.
+**Private by default.** Reports are public to anyone with the link and aren't indexed. The rate limit (12 check-ups an hour per visitor) counts a keyed hash of the IP address, made with a random key kept in the database (or `RATE_SALT`), so the stored hashes can't be reversed by trying every address; the address itself is never stored. Checking the same store twice within two minutes reopens the running audit instead of starting another.
 
 ## Running it locally
 

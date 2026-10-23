@@ -35,4 +35,15 @@ CREATE TABLE kashf.app_jobs (
 );
 `,
   },
+  {
+    // Keys the app makes for itself when RATE_SALT isn't set.
+    name: "0002_app_keys",
+    sql: `
+CREATE TABLE kashf.app_keys (
+  name       text PRIMARY KEY,
+  value      text NOT NULL,
+  created_at timestamptz NOT NULL DEFAULT now()
+);
+`,
+  },
 ];
