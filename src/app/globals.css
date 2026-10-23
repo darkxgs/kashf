@@ -1,0 +1,119 @@
+@import "tailwindcss";
+
+/*
+  Kashf design tokens.
+  A clinic's printed report: white paper on a faintly cool desk, ink in deep
+  navy, and one ballpoint blue ("pen") for actions and the prescription. The
+  three result colours appear only where a result is being reported.
+*/
+@theme {
+  --color-ink: #141b2d;
+  --color-ink-2: #3b4459;
+  --color-muted: #646d83;
+  --color-faint: #9ba2b4;
+  --color-desk: #eef1f6;
+  --color-paper: #ffffff;
+  --color-rule: #dbe0ea;
+  --color-rule-2: #e9edf3;
+  --color-well: #f6f7fb;
+
+  --color-pen: #2443d6;
+  --color-pen-deep: #1a33ad;
+  --color-pen-soft: #e7ebfd;
+
+  --color-pass: #0d8656;
+  --color-pass-soft: #dcf2e8;
+  --color-warn: #b5760a;
+  --color-warn-soft: #fbf0d7;
+  --color-fail: #d0392b;
+  --color-fail-soft: #fce3df;
+
+  --font-sans: "Readex Pro Variable", ui-sans-serif, system-ui, sans-serif;
+
+  --radius-sheet: 14px;
+  --radius-card: 10px;
+  --radius-control: 9px;
+
+  --animate-fill: fill 900ms cubic-bezier(0.2, 0.9, 0.25, 1) both;
+  --animate-rise: rise 520ms cubic-bezier(0.2, 0.9, 0.25, 1) both;
+}
+
+/* Vitals bars grow to their value once, when the report first appears. */
+@keyframes fill {
+  from {
+    transform: scaleX(0);
+  }
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+/* Colours are set per root layout (Kashf's pages and the demo store differ). */
+body {
+  font-family: var(--font-sans);
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+:lang(ar) {
+  line-height: 1.75;
+}
+
+@layer base {
+  :focus-visible {
+    outline: 2px solid var(--color-pen);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+}
+
+::selection {
+  background: var(--color-pen-soft);
+  color: var(--color-ink);
+}
+
+.tnum {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Latin fragments (URLs, code, file names) inside Arabic text read left to right. */
+.ltr {
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+
+@media print {
+  body {
+    background: white;
+  }
+  .no-print {
+    display: none !important;
+  }
+  details > summary {
+    list-style: none;
+  }
+  details:not([open]) > :not(summary) {
+    display: block !important;
+  }
+  .print-break {
+    break-inside: avoid;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

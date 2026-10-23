@@ -1,0 +1,27 @@
+# Puts the demo store's product photos into the repository the first time
+# (and whenever the list changes), so the site serves them itself.
+name: Demo store images
+
+on:
+  push:
+    branches: [main]
+    paths: ["scripts/demo-images.sh"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  images:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - run: sudo apt-get update -qq && sudo apt-get install -y -qq imagemagick webp
+      - run: bash scripts/demo-images.sh
+      - name: Commit the images
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898283+github-actions[bot]@users.noreply.github.com"
+          git add public/demo-store/img
+          git diff --cached --quiet || { git commit -m "Demo store: product photos"; git push; }
