@@ -23,8 +23,15 @@ export async function generateMetadata({ params }: PageProps<"/[lang]/r/[id]">):
   const a = await getAudit(await getConnection(), id);
   if (!a) return { title: dict(lang).notFound.title };
   const host = displayHost(a.finalUrl ?? a.url);
+  const title = a.status === "done" ? `${host}: ${a.score}/100` : host;
+  const description =
+    lang === "ar"
+      ? `فحص كشف لمتجر ${host}: السرعة والظهور في البحث والثقة والجوال والأمان، مع ما يجب إصلاحه أولًا.`
+      : `Kashf check-up of ${host}: speed, search, trust, mobile and security, with what to fix first.`;
   return {
-    title: a.status === "done" ? `${host}: ${a.score}/100` : host,
+    title,
+    description,
+    openGraph: { title, description, type: "article", locale: lang === "ar" ? "ar_SA" : "en_US" },
     robots: { index: false },
     alternates: { languages: { ar: `/ar/r/${id}`, en: `/en/r/${id}` } },
   };
