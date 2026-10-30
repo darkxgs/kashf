@@ -6,6 +6,14 @@ A free check-up for online stores. Paste a store's address and Kashf opens it th
 
 **Try it** on the built-in demo store: a fictional perfume shop, Naseem, built with mistakes on purpose (render-blocking scripts, a 2 MB PNG hero, two H1s, a product schema with no price, broken footer links), so the report always has something real to find.
 
+Live: https://kashf-audit.vercel.app
+
+![A check-up report for the demo store: a score of 68, five areas and the prescription](docs/screenshots/report.jpg)
+
+| | |
+|---|---|
+| ![The same report in Arabic](docs/screenshots/ar.jpg) | ![The home page with a real report from the demo store](docs/screenshots/landing.jpg) |
+
 ## What a check-up covers
 
 | Area | Weight | What Kashf looks at |
