@@ -223,6 +223,8 @@ describe("small rules", () => {
   it("finds a product page by the URL shapes stores use", () => {
     const page = parsePage(`<a href="/collections/all">All</a><a href="/ar/oud-oil/p123456">Oud</a>`, "https://s.example.sa/");
     expect(findProductLink(page)).toBe("https://s.example.sa/ar/oud-oil/p123456");
+    const salla = parsePage(`<a href="/p/ePdzd">About us</a><a href="/dates/p98765">Dates</a>`, "https://s.example.sa/");
+    expect(findProductLink(salla)).toBe("https://s.example.sa/dates/p98765");
   });
 
   it("doesn't mistake everyday Arabic words for payment brands", () => {

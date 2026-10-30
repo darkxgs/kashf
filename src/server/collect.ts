@@ -47,7 +47,9 @@ const isChallenge = (status: number, headers: Record<string, string>, body: stri
 
 /** Picks a product page from the home page's links, by the URL shapes stores use. */
 export function findProductLink(home: PageFacts): string | null {
-  const shapes = [/\/products?\/[^/?#]+/i, /\/p\/[^/?#]+/i, /\/[^/]+\/p\d{3,}(\/|$)/i, /\/item\/[^/?#]+/i, /\/shop\/[^/?#]+\/[^/?#]+/i];
+  // Most specific first: on Salla "/p/<code>" is an info page (about, policies),
+  // while products live at "/<name>/p<digits>".
+  const shapes = [/\/[^/]+\/p\d{3,}(\/|$)/i, /\/products?\/[^/?#]+/i, /\/item\/[^/?#]+/i, /\/shop\/[^/?#]+\/[^/?#]+/i, /\/p\/[^/?#]+/i];
   for (const re of shapes) {
     const hit = home.links.find((l) => l.internal && re.test(new URL(l.href).pathname) && !/\/(collections|categories|category|cart|checkout)\/?$/i.test(l.href));
     if (hit) return hit.href.split("#")[0];
@@ -219,6 +221,10 @@ async function run(rawUrl: string, o: CollectOptions, agent: Agent): Promise<Fac
     try {
       const pr = await fetchUrl(productUrl, { ...opts, timeoutMs: 12_000 });
       if (pr.status < 400 && pr.body) product = parsePage(pr.body.toString("utf8"), pr.url);
+      // "/p/<code>" is only a guess (Salla uses it for info pages). With no price,
+      // no cart button and no product data, it wasn't a product page after all.
+      const guess = /^\/p\/[^/]+\/?$/i.test(new URL(productUrl).pathname);
+      if (guess && product && !product.productOffer && !product.priceVisible && !product.addToCart) product = null;
     } catch {
       product = null;
     }
