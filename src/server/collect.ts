@@ -207,7 +207,9 @@ async function run(rawUrl: string, o: CollectOptions, agent: Agent): Promise<Fac
       return { url: u, status: e instanceof FetchError && e.code === "timeout" ? -1 : null };
     }
   });
-  const broken = checked.filter((c) => c.status === null || (c.status != null && c.status >= 400)).map((c) => ({ url: c.url, status: c.status }));
+  // Only answers that really mean "gone": bot walls (401, 403, 429) and dropped
+  // connections say more about the firewall than about the link.
+  const broken = checked.filter((c) => c.status === 404 || c.status === 410 || (c.status != null && c.status >= 500)).map((c) => ({ url: c.url, status: c.status }));
   await o.onStep?.("crawl");
 
   /* 5. One product page, if we can find one */

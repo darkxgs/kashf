@@ -168,6 +168,14 @@ describe("the check-up", () => {
     expect(score(evaluate(badFacts)).overall).toBeLessThan(score(evaluate(goodFacts)).overall - 25);
   });
 
+  it("doesn't claim a hosted store has no contact buttons it draws by script", () => {
+    const none = { ...badFacts.home, contact: { tel: 0, mailto: 0, whatsapp: 0 } };
+    expect(byId(evaluate({ ...badFacts, home: none, platform: null })).contact.status).toBe("fail");
+    const salla = byId(evaluate({ ...badFacts, home: none, platform: "salla" }));
+    expect(salla.contact).toBeUndefined();
+    expect(salla.whatsapp).toBeUndefined();
+  });
+
   it("puts the costliest problems first in the prescription", () => {
     const rx = prescription(evaluate(badFacts));
     expect(rx).toHaveLength(5);

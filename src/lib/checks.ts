@@ -26,6 +26,10 @@ const fileName = (u: string) => {
   }
 };
 
+/** Store builders whose chat and call buttons are added by script after the page loads. */
+const SCRIPT_DRAWN = new Set(["salla", "zid", "shopify", "youcan", "expandcart", "wix"]);
+const scriptDrawn = (f: Facts) => !!f.platform && SCRIPT_DRAWN.has(f.platform);
+
 const pct = (n: number, d: number) => (d ? Math.round((n / d) * 100) : 0);
 
 type Def = { id: string; category: Category; weight: number; effort: Effort; run: (f: Facts) => Omit<Finding, "id" | "category" | "weight" | "effort"> | null };
@@ -325,6 +329,9 @@ const DEFS: Def[] = [
     run: (f) => {
       const c = f.home.contact;
       const ways = [c.tel && "phone", c.mailto && "email", c.whatsapp && "WhatsApp"].filter(Boolean) as string[];
+      // Hosted store builders draw their contact buttons with JavaScript, which
+      // a check-up reading the HTML can't see. Saying "none" there would be wrong.
+      if (!ways.length && scriptDrawn(f)) return null;
       return { status: ways.length ? "pass" : "fail", vars: { ways: ways.join(", ") } };
     },
   },
@@ -333,7 +340,7 @@ const DEFS: Def[] = [
     category: "trust",
     weight: 2,
     effort: "quick",
-    run: (f) => ({ status: f.home.contact.whatsapp ? "pass" : "warn" }),
+    run: (f) => (!f.home.contact.whatsapp && scriptDrawn(f) ? null : { status: f.home.contact.whatsapp ? "pass" : "warn" }),
   },
   {
     id: "return_policy",

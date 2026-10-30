@@ -193,6 +193,10 @@ export function parsePage(html: string, pageUrl: string): PageFacts {
     if (links.length < 500) links.push({ href, text, internal });
   });
   if ($('iframe[src*="whatsapp"], script[src*="whatsapp"], [class*="whatsapp"] a, a[class*="whatsapp"]').length) contact.whatsapp++;
+  // Stores often put the chat button in from a script; a WhatsApp link with a
+  // number written anywhere in the page (inline script, JSON config) still counts.
+  if (!contact.whatsapp && /(wa\.me\/|api\.whatsapp\.com\/send\?phone=)\+?\d{8,15}/i.test(html)) contact.whatsapp++;
+  if (!contact.tel && /["']tel:\+?[\d\s-]{8,20}["']/i.test(html)) contact.tel++;
 
   const mixed: string[] = [];
   if (page.protocol === "https:") {
